@@ -185,8 +185,8 @@ action :configure do
         :config_dir => new_resource.config_dir,
       })
     owner 'root'
-    group 'root'
-    mode '0644'
+    group node['tomcat']['group']
+    mode '0640'
     notifies :restart, "service[#{instance}]"
   end
 
