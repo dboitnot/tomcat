@@ -12,7 +12,7 @@ action :configure do
     if not new_resource.instance_variable_get("@#{attr}")
       new_resource.instance_variable_set("@#{attr}", node['tomcat'][attr])
     end
-  end 
+  end
 
   if new_resource.name == 'base'
     instance = base_instance
@@ -229,23 +229,57 @@ action :configure do
          -password pass:#{node['tomcat']['keystore_password']} \
          -out #{new_resource.keystore_file}
       EOH
-      notifies :restart, "service[tomcat]"
+      notifies :restart, "service[#{instance}]"
     end
 
-    cookbook_file "#{new_resource.config_dir}/#{new_resource.ssl_cert_file}" do
-      mode '0644'
-      notifies :run, "script[create_keystore-#{instance}]"
-    end
+    if node['tomcat']['ssl_data_bag']
+      bag_item = Chef::DataBagItem.load(node['tomcat']['ssl_data_bag'], node['tomcat']['ssl_data_bag_item'])
 
-    cookbook_file "#{new_resource.config_dir}/#{new_resource.ssl_key_file}" do
-      mode '0644'
-      notifies :run, "script[create_keystore-#{instance}]"
-    end
+      [new_resource.ssl_cert_file, new_resource.ssl_key_file, new_resource.ssl_chain_files]
+        .flatten
+        .map { |f| ::File.absolute_path(f) }
+        .map { |f| ::File.dirname(f) }
+        .uniq
+        .each { |p| directory "#{p}" do recursive true end }
 
-    new_resource.ssl_chain_files.each do |cert|
-      cookbook_file "#{new_resource.config_dir}/#{cert}" do
+      file new_resource.ssl_cert_file do
+        mode '0600'
+        content bag_item[node['tomcat']['ssl_data_bag_cert_key']]
+        notifies :run, "script[create_keystore-#{instance}]"
+        sensitive true
+      end
+
+      file new_resource.ssl_key_file do
+        mode '0600'
+        content bag_item[node['tomcat']['ssl_data_bag_private_key_key']]
+        notifies :run, "script[create_keystore-#{instance}]"
+        sensitive true
+      end
+
+      new_resource.ssl_chain_files.each_index do |i|
+        file new_resource.ssl_chain_files[i] do
+          mode '0600'
+          content bag_item[node['tomcat']['ssl_data_bag_ca_chain_key']][i]
+          notifies :run, "script[create_keystore-#{instance}]"
+          sensitive true
+        end
+      end
+    else
+      cookbook_file "#{new_resource.config_dir}/#{new_resource.ssl_cert_file}" do
         mode '0644'
         notifies :run, "script[create_keystore-#{instance}]"
+      end
+
+      cookbook_file "#{new_resource.config_dir}/#{new_resource.ssl_key_file}" do
+        mode '0644'
+        notifies :run, "script[create_keystore-#{instance}]"
+      end
+
+      new_resource.ssl_chain_files.each do |cert|
+        cookbook_file "#{new_resource.config_dir}/#{cert}" do
+          mode '0644'
+          notifies :run, "script[create_keystore-#{instance}]"
+        end
       end
     end
   end
