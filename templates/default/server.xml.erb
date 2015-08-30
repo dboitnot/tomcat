@@ -117,6 +117,9 @@
                keystoreType="<%= @keystore_type %>"
                truststorePass="<%= node['tomcat']['keystore_password'] %>"
                maxThreads="<%= @ssl_max_threads %>" scheme="https" secure="true"
+             <% if @ssl_ciphers -%>
+               ciphers="<%= @ssl_ciphers %>"
+             <% end -%>
                clientAuth="false" sslProtocol="TLS" />
   <% end -%>
 

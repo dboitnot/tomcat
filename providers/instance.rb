@@ -175,6 +175,7 @@ action :configure do
         :proxy_port => new_resource.proxy_port,
         :ssl_port => new_resource.ssl_port,
         :ssl_proxy_port => new_resource.ssl_proxy_port,
+        :ssl_ciphers => new_resource.ssl_ciphers,
         :ajp_port => new_resource.ajp_port,
         :shutdown_port => new_resource.shutdown_port,
         :max_threads => new_resource.max_threads,
@@ -182,7 +183,7 @@ action :configure do
         :keystore_file => new_resource.keystore_file,
         :keystore_type => new_resource.keystore_type,
         :tomcat_auth => new_resource.tomcat_auth,
-        :config_dir => new_resource.config_dir,
+        :config_dir => new_resource.config_dir
       })
     owner 'root'
     group node['tomcat']['group']

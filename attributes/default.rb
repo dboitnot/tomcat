@@ -22,6 +22,7 @@ default['tomcat']['port'] = 8080
 default['tomcat']['proxy_port'] = nil
 default['tomcat']['ssl_port'] = 8443
 default['tomcat']['ssl_proxy_port'] = nil
+default['tomcat']['ssl_ciphers'] = "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA"
 default['tomcat']['ajp_port'] = 8009
 default['tomcat']['shutdown_port'] = 8005
 default['tomcat']['catalina_options'] = ''

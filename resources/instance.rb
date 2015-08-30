@@ -15,6 +15,8 @@ attribute :ssl_port,
   :kind_of => Fixnum
 attribute :ssl_proxy_port,
   :kind_of => Fixnum
+attribute :ssl_ciphers,
+  :kind_of => String
 attribute :ajp_port,
   :kind_of => Fixnum
 attribute :shutdown_port,
